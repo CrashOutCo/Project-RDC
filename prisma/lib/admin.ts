@@ -17,3 +17,60 @@ export const getAllSessions = unstable_cache(
   undefined,
   { revalidate: 604800, tags: ["getAllSessions"] }, // 1 week
 );
+
+// TODO Update the documentation
+/**
+ * Retrieves all sessions associated with a specific game.
+ *
+ * @param gameId - The unique identifier of the game.
+ * @returns A promise that resolves to an array of session objects, each including the game name.
+ *
+ * @remarks
+ * This function uses the `unstable_cache` to cache the results for 1 week (604800 seconds).
+ * The cache is tagged with "getAllSessions".
+ *
+ * @example
+ * ```typescript
+ * const sessions = await getAllSessionsByGame(1);
+ * console.log(sessions);
+ * ```
+ */
+export const getAllSessionsByGame = unstable_cache(
+  async (gameId: number) =>
+    await prisma.session.findMany({
+      where: { gameId },
+      select: {
+        date: true,
+        sessionId: true,
+        sessionName: true,
+        sessionUrl: true,
+        thumbnail: true,
+        Game: { select: { gameName: true } },
+        sets: {
+          select: {
+            setWinners: true,
+            matches: {
+              select: {
+                matchWinners: true,
+                playerSessions: {
+                  select: {
+                    playerStats: {
+                      select: {
+                        value: true,
+                        player: true,
+                        gameStat: {
+                          select: { statName: true, statId: true, type: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+  undefined,
+  { revalidate: 604800, tags: ["getAllSessions"] }, // 1 week
+);

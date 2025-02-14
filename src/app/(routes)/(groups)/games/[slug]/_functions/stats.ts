@@ -9,6 +9,11 @@ import {
 import { StatNames } from "../../../../../../../prisma/lib/utils";
 import PostHogClient from "@/lib/posthog";
 
+/**
+ * Fetches the sum and average of each stat from the database.
+ * @param playerId id of the player
+ * @returns An array of objects for each member in the order [goals, assists, saves, score, days]
+ */
 export const getRLStats = async (playerId: number) =>
   await Promise.all([
     (await getSumPerStat(playerId, StatNames.RLGoals)).at(0),
